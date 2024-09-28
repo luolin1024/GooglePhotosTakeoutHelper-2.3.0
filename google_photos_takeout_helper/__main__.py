@@ -1,4 +1,5 @@
 import sys as _sys
+import os
 
 from loguru import logger
 from tqdm import tqdm as _tqdm
@@ -349,19 +350,23 @@ def main():
         # Check if we need to load this folder
         if file.parent not in _all_jsons_dict:
             for json_file in file.parent.rglob("*.json"):
+                # full_file_name_without_ext = os.path.splitext(json_file)[0]
+                # file_name_without_ext = full_file_name_without_ext.split("/")[len(full_file_name_without_ext.split("/")) - 1]
                 try:
                     with json_file.open('r', encoding="utf-8") as f:
                         json_dict = _json.load(f)
+                        # _all_jsons_dict[file.parent][file_name_without_ext] = json_dict
+                        # _all_jsons_dict[file.parent][file_name_without_ext] = json_dict
                         if "title" in json_dict:
                             # We found a JSON file with a proper title, store the file name
-                            _all_jsons_dict[file.parent][json_dict["title"]] = json_dict
+                            _all_jsons_dict[file.parent][json_dict["title"][0:46]] = json_dict
                 except:
                     logger.debug(f"Couldn't open json file {json_file}")
 
         # Check if we have found the JSON file among all the loaded ones in the folder
-        if file.parent in _all_jsons_dict and file.name in _all_jsons_dict[file.parent]:
+        if file.parent in _all_jsons_dict and file.name[0:46] in _all_jsons_dict[file.parent]:
             # Great we found a valid JSON file in this folder corresponding to this file
-            return _all_jsons_dict[file.parent][file.name]
+            return _all_jsons_dict[file.parent][file.name[0:46]]
         else:
             nonlocal s_no_json_found
             s_no_json_found.append(str(file.resolve()))
